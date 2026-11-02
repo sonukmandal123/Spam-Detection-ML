@@ -25,7 +25,10 @@ except Exception as e:
     st.error(f"Failed to load `spam_model.pkl`: {e}")
     st.stop()
 
-# Initialize session state for text area
+# Initialize session states
+if "dark_mode" not in st.session_state:
+    st.session_state.dark_mode = False
+
 if "email_input_text" not in st.session_state:
     st.session_state.email_input_text = ""
 
@@ -35,10 +38,158 @@ def set_sample(text):
 def clear_input():
     st.session_state.email_input_text = ""
 
-# Header
-st.title("📧 Email / SMS Spam Detector")
+# Theme Styling CSS Injection
+if st.session_state.dark_mode:
+    theme_css = """
+    <style>
+    [data-testid="stAppViewContainer"] {
+        background-color: #0f172a !important;
+        color: #f8fafc !important;
+    }
+    [data-testid="stHeader"] {
+        background: transparent !important;
+    }
+    .header-title {
+        color: #f8fafc !important;
+        font-size: 1.75rem !important;
+        font-weight: 700 !important;
+        letter-spacing: -0.025em !important;
+        line-height: 1.25 !important;
+        white-space: nowrap !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    .header-subtitle {
+        color: #94a3b8 !important;
+        font-size: 0.95rem !important;
+        margin-top: 6px !important;
+        margin-bottom: 0 !important;
+        line-height: 1.5 !important;
+    }
+    @media (max-width: 680px) {
+        .header-title {
+            font-size: 1.35rem !important;
+            white-space: normal !important;
+        }
+    }
+    div[data-testid="stColumn"]:has(div[data-testid="stToggle"]) {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+    }
+    div[data-testid="stToggle"] {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    h1, h2, h3, h4, h5, h6, label, .stMarkdown p {
+        color: #f8fafc !important;
+    }
+    hr {
+        border-color: #334155 !important;
+    }
+    .stTextArea textarea {
+        background-color: #1e293b !important;
+        color: #f8fafc !important;
+        border: 1px solid #475569 !important;
+    }
+    .stTextArea textarea:focus {
+        border-color: #38bdf8 !important;
+        box-shadow: 0 0 0 1px #38bdf8 !important;
+    }
+    button[kind="secondary"] {
+        background-color: #1e293b !important;
+        color: #f8fafc !important;
+        border: 1px solid #475569 !important;
+    }
+    button[kind="secondary"]:hover {
+        background-color: #334155 !important;
+        border-color: #94a3b8 !important;
+        color: #ffffff !important;
+    }
+    </style>
+    """
+else:
+    theme_css = """
+    <style>
+    [data-testid="stAppViewContainer"] {
+        background-color: #f8fafc !important;
+        color: #0f172a !important;
+    }
+    [data-testid="stHeader"] {
+        background: transparent !important;
+    }
+    .header-title {
+        color: #0f172a !important;
+        font-size: 1.75rem !important;
+        font-weight: 700 !important;
+        letter-spacing: -0.025em !important;
+        line-height: 1.25 !important;
+        white-space: nowrap !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    .header-subtitle {
+        color: #64748b !important;
+        font-size: 0.95rem !important;
+        margin-top: 6px !important;
+        margin-bottom: 0 !important;
+        line-height: 1.5 !important;
+    }
+    @media (max-width: 680px) {
+        .header-title {
+            font-size: 1.35rem !important;
+            white-space: normal !important;
+        }
+    }
+    div[data-testid="stColumn"]:has(div[data-testid="stToggle"]) {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+    }
+    div[data-testid="stToggle"] {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    h1, h2, h3, h4, h5, h6, label, .stMarkdown p {
+        color: #0f172a !important;
+    }
+    hr {
+        border-color: #e2e8f0 !important;
+    }
+    .stTextArea textarea {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        border: 1px solid #cbd5e1 !important;
+    }
+    .stTextArea textarea:focus {
+        border-color: #2563eb !important;
+        box-shadow: 0 0 0 1px #2563eb !important;
+    }
+    button[kind="secondary"] {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        border: 1px solid #cbd5e1 !important;
+    }
+    button[kind="secondary"]:hover {
+        background-color: #f1f5f9 !important;
+        border-color: #94a3b8 !important;
+        color: #0f172a !important;
+    }
+    </style>
+    """
+
+st.markdown(theme_css, unsafe_allow_html=True)
+
+# Top Bar: Header and Theme Switch Toggle
+col_title, col_theme = st.columns([0.72, 0.28], vertical_alignment="center")
+with col_title:
+    st.markdown('<h1 class="header-title">📧 Email / SMS Spam Detector</h1>', unsafe_allow_html=True)
+with col_theme:
+    st.toggle("🌙 Dark Mode", key="dark_mode")
+
 st.markdown(
-    "Detect whether an incoming email or text message is **Spam** or **Ham (Legitimate)** using machine learning."
+    '<p class="header-subtitle">Detect whether an incoming email or text message is <b>Spam</b> or <b>Ham (Legitimate)</b> using Machine Learning.</p>',
+    unsafe_allow_html=True
 )
 
 st.divider()
